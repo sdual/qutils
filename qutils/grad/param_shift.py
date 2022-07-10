@@ -9,18 +9,18 @@ class ParamShiftGrad:
                        param_index: int, obs: Observable) -> float:
         param = circuit.get_parameter(param_index)
         circuit.set_parameter(param_index, param + np.pi / 4.0)
-        plus_exp = ParamShiftGrad._expectation_value(circuit, obs)
+        plus_value = ParamShiftGrad._expectation_value(circuit, obs)
 
         circuit.set_parameter(param_index, param - np.pi / 4.0)
-        minus_exp = ParamShiftGrad._expectation_value(circuit, obs)
+        minus_value = ParamShiftGrad._expectation_value(circuit, obs)
 
         circuit.set_parameter(param_index, param)
-        return plus_exp - minus_exp
+        return plus_value - minus_value
 
     @staticmethod
     def _expectation_value(circuit: ParametricQuantumCircuit,
                            obs: Observable) -> float:
-        state = QuantumState(circuit.get_qubit_count)
+        state = QuantumState(circuit.get_qubit_count())
         state.set_zero_state()
         circuit.update_quantum_state(state)
         return obs.get_expectation_value(state)
