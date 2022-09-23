@@ -1,35 +1,42 @@
 from dataclasses import dataclass
+from typing import Tuple
 
 from qulacs import ParametricQuantumCircuit
 
 
 @dataclass
-class GateParam:
+class OneQubitGateParam:
     qubit_index: int
     angle: float
 
 
 @dataclass
+class TwoQubitGateParam:
+    qubit_indices: Tuple[int, int]
+    angle: float
+
+
+@dataclass
 class SU2Param:
-    param1: GateParam
-    param2: GateParam
-    param3: GateParam
+    param1: OneQubitGateParam
+    param2: OneQubitGateParam
+    param3: OneQubitGateParam
 
 
 @dataclass
 class ParamA:
-    param1: GateParam
-    param2: GateParam
-    param3: GateParam
+    param1: TwoQubitGateParam
+    param2: TwoQubitGateParam
+    param3: TwoQubitGateParam
 
 
 @dataclass
 class SU4Param:
-    su2Param1: SU2Param
-    su2Param2: SU2Param
-    aParam: ParamA
-    su2Param3: SU2Param
-    su2Param4: SU2Param
+    su2_param1: SU2Param
+    su2_param2: SU2Param
+    a_param: ParamA
+    su2_param3: SU2Param
+    su2_param4: SU2Param
 
 
 class SU4:
@@ -38,11 +45,11 @@ class SU4:
     def add_interaction(circuit: ParametricQuantumCircuit,
                         param: SU4Param
                         ) -> ParametricQuantumCircuit:
-        circuit = SU4._add_local_interaction(circuit, param.su2Param1)
-        circuit = SU4._add_local_interaction(circuit, param.su2Param2)
-        circuit = SU4._add_non_local_interaction(circuit, param.aParam)
-        circuit = SU4._add_local_interaction(circuit, param.su2Param3)
-        circuit = SU4._add_local_interaction(circuit, param.su2Param4)
+        circuit = SU4._add_local_interaction(circuit, param.su2_param1)
+        circuit = SU4._add_local_interaction(circuit, param.su2_param2)
+        circuit = SU4._add_non_local_interaction(circuit, param.a_param)
+        circuit = SU4._add_local_interaction(circuit, param.su2_param3)
+        circuit = SU4._add_local_interaction(circuit, param.su2_param4)
         return circuit
 
     @staticmethod
@@ -62,12 +69,18 @@ class SU4:
         ZZ_pauli_ids = [3, 3]
 
         circuit.add_parametric_multi_Pauli_rotation_gate(
-            param.param1.qubit_index, XX_pauli_ids, param.param1.angle
+            param.param1.qubit_indices,
+            XX_pauli_ids,
+            param.param1.angle
         )
         circuit.add_parametric_multi_Pauli_rotation_gate(
-            param.param2.qubit_index, YY_pauli_ids, param.param2.angle
+            param.param2.qubit_indices,
+            YY_pauli_ids,
+            param.param2.angle
         )
         circuit.add_parametric_multi_Pauli_rotation_gate(
-            param.param3.qubit_index, ZZ_pauli_ids, param.param3.angle
+            param.param3.qubit_indices,
+            ZZ_pauli_ids,
+            param.param3.angle
         )
         return circuit
